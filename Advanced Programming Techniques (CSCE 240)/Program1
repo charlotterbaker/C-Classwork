@@ -1,0 +1,82 @@
+/*Charlotte Baker CSCE 240*/
+/*Programming Assignment 1*/
+#include <iostream>
+#include <iomanip>
+#include <string>
+#include <vector>
+#include <climits>
+
+using namespace std;
+
+bool parseTime(const string& input, int& minutes, int& seconds) {
+    if (input.size() != 5 || input[2] != ':') {
+        return false;
+    }
+
+    try {
+        minutes = stoi(input.substr(0, 2));
+        seconds = stoi(input.substr(3, 2));
+
+        if (minutes < 0 || minutes > 59 || seconds < 0 || seconds > 59) {
+            return false;
+        }
+    } catch (const invalid_argument& e) {
+        return false;
+    }
+
+    return true;
+}
+
+int main() {
+    vector<string> mileTimes;
+    string input;
+    int minutes, seconds;
+    int fastestMinutes = INT_MAX, fastestSeconds = INT_MAX;
+    int totalMinutes = 0, totalSeconds = 0;
+    int count = 0;
+
+    while (true) {
+        cin >> input;
+
+        if (input == "q") {
+            break;
+        }
+
+        if (parseTime(input, minutes, seconds)) {
+            mileTimes.push_back(input);
+            count++;
+
+            // Calculate fastest time
+            int currentTimeInSeconds = minutes * 60 + seconds;
+            int fastestTimeInSeconds = fastestMinutes * 60 + fastestSeconds;
+
+            if (currentTimeInSeconds < fastestTimeInSeconds) {
+                fastestMinutes = minutes;
+                fastestSeconds = seconds;
+            }
+
+            // Calculate total time
+            totalMinutes += minutes;
+            totalSeconds += seconds;
+
+            // Adjust total time if seconds exceed 60
+            if (totalSeconds >= 60) {
+                totalMinutes += totalSeconds / 60;
+                totalSeconds %= 60;
+            }
+        } else {
+            cerr << "Input " << count + 1 << " did not match expected format." << endl;
+            break;
+        }
+    }
+
+    cout << count << " valid times read." << endl;
+    cout << "Fastest mile time: " << setw(2) << setfill('0') << fastestMinutes << ":" << setw(2) << setfill('0') << fastestSeconds << endl;
+
+    // Format total running time
+    int totalHours = totalMinutes / 60;
+    totalMinutes %= 60;
+    cout << "Total running time: " << totalHours << ":" << setw(2) << setfill('0') << totalMinutes << ":" << setw(2) << setfill('0') << totalSeconds << endl;
+
+    return 0;
+}
